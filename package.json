@@ -4,6 +4,7 @@
   "description": "https://www.salrosatampa.com/_QA_testing_of_webpage",
   "main": "index.js",
   "scripts": {
+    "start": "npx serve src -p 3000",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
