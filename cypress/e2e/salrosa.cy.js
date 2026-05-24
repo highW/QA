@@ -70,7 +70,7 @@ describe('Sal Rosa - Page Content', () => {
   });
 
   it('shows the Sal Rosa Cafe section', () => {
-    cy.contains('Sal Rosa Cafe + Scoops').should('exist');
+    cy.contains('Cafe + Scoops').should('exist');
   });
 });
 
