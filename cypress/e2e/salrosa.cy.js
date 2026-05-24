@@ -41,13 +41,14 @@ describe('Sal Rosa - Navigation', () => {
   });
 
   it('has a Stay link pointing to Marriott', () => {
-    cy.get('a[href*="marriott.com"]')
+    // href and target are on separate lines in the HTML - use first() to avoid multiple matches
+    cy.get('a[href*="marriott.com"]').first()
       .should('exist')
       .and('have.attr', 'target', '_blank');
   });
 
   it('has an OpenTable reservation button', () => {
-    cy.get('a[href*="opentable.com"]').should('exist');
+    cy.get('a[href*="opentable.com"]').first().should('exist');
   });
 });
 
@@ -111,6 +112,7 @@ describe('Sal Rosa - Social Media Links', () => {
   });
 
   it('has an Instagram link', () => {
+    // Use href* (contains) to handle trailing slashes
     cy.get('a[href*="instagram.com/salrosatampa"]').should('exist');
   });
 
@@ -122,8 +124,19 @@ describe('Sal Rosa - Social Media Links', () => {
     cy.get('a[href*="twitter.com/SalRosaTampa"]').should('exist');
   });
 
-  it('social links open in a new tab', () => {
+  it('Instagram link opens in a new tab', () => {
+    // target="_blank" is on a separate line in the HTML but Cypress reads the DOM, not raw HTML
     cy.get('a[href*="instagram.com/salrosatampa"]')
+      .should('have.attr', 'target', '_blank');
+  });
+
+  it('Facebook link opens in a new tab', () => {
+    cy.get('a[href*="facebook.com/SalRosaTampa"]')
+      .should('have.attr', 'target', '_blank');
+  });
+
+  it('Twitter link opens in a new tab', () => {
+    cy.get('a[href*="twitter.com/SalRosaTampa"]')
       .should('have.attr', 'target', '_blank');
   });
 });
