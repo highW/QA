@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npx serve src -p 3000",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cypress run"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/highW/QA#readme",
   "devDependencies": {
-    "cypress": "^15.15.0"
+    "cypress": "^15.15.0",
+    "serve": "^14.0.0"
   }
 }
