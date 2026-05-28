@@ -1,0 +1,34 @@
+# ── Dependencies ──────────────────────────────────────────────
+node_modules/
+
+# ── Cypress runtime artifacts (may capture real site content) ─
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+cypress/fixtures/downloads/
+
+# ── Credentials & secrets ─────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Local Cypress config overrides ────────────────────────────
+cypress.env.json
+
+# ── Cypress cache (large, machine-specific) ───────────────────
+.cache/
+.cypress-cache/
+
+# ── Local server output ───────────────────────────────────────
+dist/
+.serve/
+
+# ── OS & editor noise ─────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ── npm/CI logs ───────────────────────────────────────────────
+npm-debug.log*
+yarn-error.log*
