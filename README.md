@@ -2,9 +2,9 @@
 
 End-to-end test suite for the [Sal Rosa Tampa](https://www.salrosatampa.com) restaurant website, built as a QA portfolio project. Tests run automatically on every push via GitHub Actions across multiple browsers and operating systems.
 
-![Tests](https://img.shields.io/badge/tests-25%20passing-brightgreen)
-![Cypress](https://img.shields.io/badge/cypress-v15-blue)
-![CI](https://img.shields.io/badge/CI-GitHub%20Actions-black)
+!\[Tests](https://img.shields.io/badge/tests-25%20passing-brightgreen)
+!\[Cypress](https://img.shields.io/badge/cypress-v15-blue)
+!\[CI](https://img.shields.io/badge/CI-GitHub%20Actions-black)
 
 \---
 
@@ -132,9 +132,9 @@ Marriott and OpenTable links appear 3 times in the HTML (header, mobile nav, foo
 * `blockHosts` to handle third-party CDN dependencies in CI
 * `uncaught:exception` handler for legacy/third-party JavaScript
 * `beforeEach` hooks for consistent test setup
-* Attribute selectors: `a\[href\*="..."]`, `a\[href^="tel:"]`
+* Attribute selectors: `a\\\[href\\\*="..."]`, `a\\\[href^="tel:"]`
 * `.first()` to handle duplicate elements
-* `should('have.attr', 'target', '\_blank')` for link safety checks
+* `should('have.attr', 'target', '\\\_blank')` for link safety checks
 * Strategy matrix in GitHub Actions for cross-browser/OS coverage
 * `fail-fast: false` to get full results across all matrix jobs
 
@@ -142,5 +142,5 @@ Marriott and OpenTable links appear 3 times in the HTML (header, mobile nav, foo
 
 ## 📄 License
 
-None
+MIT
 
