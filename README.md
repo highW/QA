@@ -17,7 +17,7 @@ QA/
 │       └── cypress.yml         # Cross-browser CI pipeline
 ├── cypress/
 │   ├── e2e/
-│   │   └── salrosa.cy.js       # 25 tests across 5 describe blocks
+│   │   └── salrosa.cy.js       # 31 tests across 6 describe blocks
 │   └── support/
 │       ├── commands.js         # Custom reusable commands
 │       └── e2e.js              # Support entry point
@@ -65,7 +65,7 @@ npm test
 
 \---
 
-## ✅ Test Coverage — 25 Tests
+## ✅ Test Coverage — 31 Tests
 
 |Describe Block|Tests|What's Covered|
 |-|-|-|
@@ -73,6 +73,7 @@ npm test
 |Navigation|6|Menu, Happenings, Private Events, Marriott link, OpenTable button|
 |Page Content|4|Latin cuisine copy, Tampa mentions, tagline, Cafe section|
 |Contact \& Footer|6|Address, phone number, tel: link, footer, newsletter, Careers|
+| External Link Availability | 6 | Social URL format validation, Marriott/OpenTable/Careers reachability via cy.request() |
 |Social Media|6|Instagram, Facebook, Twitter links + target="\_blank" on each|
 
 \---
@@ -102,7 +103,7 @@ The workflow at `.github/workflows/cypress.yml` triggers on every push and pull 
 3. Runs `npm ci` for clean, reproducible installs
 4. Boots the local server via `npm start`
 5. Waits for `localhost:3000` to be ready
-6. Runs all 25 Cypress tests in the specified browser
+6. Runs all 31 Cypress tests in the specified browser
 7. Uploads screenshots as artifacts on failure (named by OS + browser)
 
 **Every commit shows a pass/fail status** per OS/browser combination directly in GitHub.
@@ -111,7 +112,7 @@ The workflow at `.github/workflows/cypress.yml` triggers on every push and pull 
 
 ## 🛠️ Technical Challenges Solved
 
-Real problems encountered and fixed during this project — the kind of issues QA engineers face on actual sites:
+Real problems encountered and fixed during this project:
 
 **1. Page load timeout on saved Squarespace HTML**
 Squarespace pages load dozens of scripts from external CDNs. GitHub's CI runner has no access to those, causing 60s timeouts. Fixed by adding `blockHosts` in `cypress.config.js` to immediately reject external CDN requests rather than waiting for them.
@@ -125,16 +126,27 @@ Blocking the CDN also blocked jQuery, causing the page's own JavaScript to throw
 **4. Multiple element matches**
 Marriott and OpenTable links appear 3 times in the HTML (header, mobile nav, footer). Fixed with `.first()` to avoid Cypress throwing on multiple matches.
 
-\---
+**5. Social media links not testable via cy.request()**
+Instagram, Facebook, and Twitter/X return `403` or redirect to login pages for all automated/non-browser requests. Attempting `cy.request()` on these URLs will always fail in CI regardless of whether the link is valid. Fixed by using a custom `shouldHaveValidUrl` command that reads the `href` from the DOM and validates it is a well-formed `https://` URL pointing to the correct domain — the meaningful, reliable check available for third-party social links.
+
+**6. opentable.com blocked by blockHosts**
+`opentable.com` was in the `blockHosts` list to prevent the page from loading the OpenTable widget. This also inadvertently blocked `cy.request()` from reaching OpenTable for availability testing. Fixed by removing `opentable.com` from `blockHosts` — the widget iframe failing to load doesn't affect any test assertions.
+
+**7. Missing `cypress:open` script**
+The README documented `npm run cypress:open` but the script was never defined in `package.json`, making the interactive test runner inaccessible. Fixed by adding `"cypress:open": "cypress open"` to the scripts.
+
+---
 
 ## 💡 Key Cypress Concepts Demonstrated
 
 * `blockHosts` to handle third-party CDN dependencies in CI
 * `uncaught:exception` handler for legacy/third-party JavaScript
 * `beforeEach` hooks for consistent test setup
-* Attribute selectors: `a\\\[href\\\*="..."]`, `a\\\[href^="tel:"]`
+* Attribute selectors: `a[href*="..."]`, `a[href^="tel:"]`
 * `.first()` to handle duplicate elements
-* `should('have.attr', 'target', '\\\_blank')` for link safety checks
+* `should('have.attr', 'target', '_blank')` for link safety checks
+* `cy.request()` with `failOnStatusCode: false` for external link availability
+* Custom chainable command (`shouldHaveValidUrl`) for DOM-based URL validation
 * Strategy matrix in GitHub Actions for cross-browser/OS coverage
 * `fail-fast: false` to get full results across all matrix jobs
 
