@@ -124,19 +124,22 @@ describe('Sal Rosa - Social Media Links', () => {
     cy.get('a[href*="twitter.com/SalRosaTampa"]').should('exist');
   });
 
-  it('Instagram link opens in a new tab', () => {
+  it('Instagram link opens in a new tab with noopener', () => {
     // target="_blank" is on a separate line in the HTML but Cypress reads the DOM, not raw HTML
     cy.get('a[href*="instagram.com/salrosatampa"]')
-      .should('have.attr', 'target', '_blank');
+      .should('have.attr', 'target', '_blank')
+      .and('have.attr', 'rel').and('include', 'noopener');
   });
 
-  it('Facebook link opens in a new tab', () => {
+  it('Facebook link opens in a new tab with noopener', () => {
     cy.get('a[href*="facebook.com/SalRosaTampa"]')
-      .should('have.attr', 'target', '_blank');
+      .should('have.attr', 'target', '_blank')
+      .and('have.attr', 'rel').and('include', 'noopener');
   });
 
-  it('Twitter link opens in a new tab', () => {
+  it('Twitter link opens in a new tab with noopener', () => {
     cy.get('a[href*="twitter.com/SalRosaTampa"]')
-      .should('have.attr', 'target', '_blank');
+      .should('have.attr', 'target', '_blank')
+      .and('have.attr', 'rel').and('include', 'noopener');
   });
 });
