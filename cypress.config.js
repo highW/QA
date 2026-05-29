@@ -15,7 +15,6 @@ module.exports = defineConfig({
       '*.google-analytics.com',
       '*.googletagmanager.com',
       '*.facebook.net',
-      '*.opentable.com',
     ],
   },
 });

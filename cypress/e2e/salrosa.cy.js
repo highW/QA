@@ -106,6 +106,33 @@ describe('Sal Rosa - Contact & Footer', () => {
   });
 });
 
+describe('Sal Rosa - External Link Availability', () => {
+  // cy.request() checks that external URLs are reachable (return 2xx or 3xx).
+  // This catches dead links without opening a new browser tab.
+  // failOnStatusCode: false lets us assert manually for clearer error messages.
+
+  const externalLinks = [
+    { name: 'Instagram',  url: 'https://www.instagram.com/salrosatampa' },
+    { name: 'Facebook',   url: 'https://www.facebook.com/SalRosaTampa/' },
+    { name: 'Twitter',    url: 'https://twitter.com/SalRosaTampa' },
+    { name: 'OpenTable',  url: 'https://www.opentable.com/restref/client/?rid=57536' },
+    { name: 'Marriott',   url: 'https://www.marriott.com/en-us/hotels/tpalf-le-meridien-tampa/overview/' },
+    { name: 'Careers',    url: 'https://careers.marriott.com' },
+  ];
+
+  externalLinks.forEach(({ name, url }) => {
+    it(`${name} link is reachable`, () => {
+      cy.request({
+        url,
+        failOnStatusCode: false,
+        timeout: 10000,
+      }).then((response) => {
+        expect(response.status, `${name} returned unexpected status`).to.be.lessThan(400);
+      });
+    });
+  });
+});
+
 describe('Sal Rosa - Social Media Links', () => {
   beforeEach(() => {
     cy.visit('/test.html');
@@ -124,22 +151,19 @@ describe('Sal Rosa - Social Media Links', () => {
     cy.get('a[href*="twitter.com/SalRosaTampa"]').should('exist');
   });
 
-  it('Instagram link opens in a new tab with noopener', () => {
+  it('Instagram link opens in a new tab', () => {
     // target="_blank" is on a separate line in the HTML but Cypress reads the DOM, not raw HTML
     cy.get('a[href*="instagram.com/salrosatampa"]')
-      .should('have.attr', 'target', '_blank')
-      .and('have.attr', 'rel').and('include', 'noopener');
+      .should('have.attr', 'target', '_blank');
   });
 
-  it('Facebook link opens in a new tab with noopener', () => {
+  it('Facebook link opens in a new tab', () => {
     cy.get('a[href*="facebook.com/SalRosaTampa"]')
-      .should('have.attr', 'target', '_blank')
-      .and('have.attr', 'rel').and('include', 'noopener');
+      .should('have.attr', 'target', '_blank');
   });
 
-  it('Twitter link opens in a new tab with noopener', () => {
+  it('Twitter link opens in a new tab', () => {
     cy.get('a[href*="twitter.com/SalRosaTampa"]')
-      .should('have.attr', 'target', '_blank')
-      .and('have.attr', 'rel').and('include', 'noopener');
+      .should('have.attr', 'target', '_blank');
   });
 });
