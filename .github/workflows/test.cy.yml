@@ -1,5 +1,3 @@
-name: Cypress Cross-Browser & Cross-OS Tests
-
 on:
   push:
     branches: [ main ]
@@ -7,28 +5,46 @@ on:
     branches: [ main ]
 
 jobs:
+
+  # ── Security audit — runs first, fast, fails loud ──────────────────────────
+  security-audit:
+    name: "Security Audit"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Check for known vulnerabilities
+        run: npm audit --audit-level=high
+        # Fails if any high or critical vulnerabilities found in dependencies
+
+  # ── Cypress E2E — cross-browser / cross-OS matrix ─────────────────────────
   cypress-run:
     name: "${{ matrix.os }} | ${{ matrix.browser }}"
     runs-on: ${{ matrix.os }}
+    needs: security-audit          # don't run tests if audit fails
 
     strategy:
-      fail-fast: false   # keep running other combos if one fails
+      fail-fast: false             # get full results across all combos
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         browser: [chrome, firefox, edge]
         exclude:
-          # Edge is not available on Linux or macOS runners
           - os: ubuntu-latest
             browser: edge
           - os: macos-latest
             browser: edge
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
@@ -42,8 +58,9 @@ jobs:
           browser: ${{ matrix.browser }}
           start: npm start
           wait-on: 'http://localhost:3000'
+          wait-on-timeout: 30
 
-      - name: Upload failure screenshots
+      - name: Upload screenshots on failure
         uses: actions/upload-artifact@v4
         if: failure()
         with:

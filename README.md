@@ -2,11 +2,13 @@
 
 End-to-end test suite for the [Sal Rosa Tampa](https://www.salrosatampa.com) restaurant website, built as a QA portfolio project. Tests run automatically on every push via GitHub Actions across multiple browsers and operating systems.
 
-![Tests](https://img.shields.io/badge/tests-31%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-50%20passing-brightgreen)
 ![Cypress](https://img.shields.io/badge/cypress-v15-blue)
 ![CI](https://img.shields.io/badge/CI-GitHub%20Actions-black)
+![Security](https://img.shields.io/badge/security-npm%20audit-success)
+![Bugs](https://img.shields.io/badge/bugs%20filed-3-yellow)
 
-\---
+---
 
 ## 📁 Project Structure
 
@@ -14,21 +16,23 @@ End-to-end test suite for the [Sal Rosa Tampa](https://www.salrosatampa.com) res
 QA/
 ├── .github/
 │   └── workflows/
-│       └── cypress.yml         # Cross-browser CI pipeline
+│       └── test.cy.yml            # Security audit + cross-browser CI pipeline
 ├── cypress/
 │   ├── e2e/
-│   │   └── salrosa.cy.js       # 31 tests across 6 describe blocks
+│   │   └── salrosa.cy.js          # 50 tests across 11 describe blocks
 │   └── support/
-│       ├── commands.js         # Custom reusable commands
-│       └── e2e.js              # Support entry point
+│       ├── commands.js            # Custom reusable commands (shouldHaveValidUrl)
+│       └── e2e.js                 # Support entry point + exception handler
 ├── src/
-│   └── test.html               # Saved copy of live restaurant site
-├── cypress.config.js           # Cypress config with CDN blocking
+│   └── test.html                  # Saved copy of live restaurant site
+├── cypress.config.js              # Cypress config with CDN blocking
 ├── package.json
+├── TEST-PLAN.md                   # Full test plan with strategy & risk assessment
+├── BUGS.md                        # Real bugs found and documented during QA
 └── README.md
 ```
 
-\---
+---
 
 ## 🚀 Getting Started
 
@@ -57,102 +61,150 @@ Serves `src/test.html` on `http://localhost:3000`.
 npm run cypress:open
 ```
 
+> **Note:** requires a local machine with a display. Does not work in headless CI environments.
+
 ### Run all tests headlessly
 
 ```bash
 npm test
 ```
 
-\---
+---
 
-## ✅ Test Coverage — 31 Tests
+## ✅ Test Coverage — 50 Tests
 
-|Describe Block|Tests|What's Covered|
-|-|-|-|
-|Page Load|3|Title, language attribute, successful render|
-|Navigation|6|Menu, Happenings, Private Events, Marriott link, OpenTable button|
-|Page Content|4|Latin cuisine copy, Tampa mentions, tagline, Cafe section|
-|Contact \& Footer|6|Address, phone number, tel: link, footer, newsletter, Careers|
-| External Link Availability | 6 | Social URL format validation, Marriott/OpenTable/Careers reachability via cy.request() |
-|Social Media|6|Instagram, Facebook, Twitter links + target="\_blank" on each|
+| # | Describe Block | Tests | Priority | What's Covered |
+|-|-|-|-|-|
+| 1 | Page Load | 3 | P1 | Title, language attribute, successful render |
+| 2 | Navigation | 6 | P2 | Menu, Happenings, Private Events, Marriott link, OpenTable button |
+| 3 | Page Content | 4 | P2 | Latin cuisine copy, Tampa mentions, tagline, Cafe section |
+| 4 | Contact & Footer | 6 | P2 | Address, phone, tel: link, footer, newsletter, Careers |
+| 5 | Social Media Links | 6 | P2 | Instagram/Facebook/Twitter URL validation + target="_blank" |
+| 6 | External Link Availability | 3 | P2 | Marriott, OpenTable, Careers reachability via cy.request() |
+| 7 | Security | 4 | P2 | https-only links, no javascript: hrefs, no generator meta tag |
+| 8 | Accessibility | 5 | P2 | h1, alt attributes, nav/footer landmarks, link text |
+| 9 | Mobile Viewport | 4 | P2 | iPhone 14 render, phone link, footer, no horizontal overflow |
+| 10 | Negative & Edge Cases | 3 | P3 | Fragment URL, JS-disabled degradation, anchor link format |
+| 11 | **Reservation CTA** | **6** | **P1** | Button visibility, text, OpenTable ID, new tab, reachability, mobile |
 
-\---
+---
 
-## 🌐 Cross-Browser \& Cross-OS Matrix
+## 🎯 Why Reservations Get Their Own Suite
+
+The reservation button is the most business-critical element on this page. If it breaks, the restaurant stops taking bookings. A QA engineer's job isn't just to test what's technically interesting — it's to protect what matters most to the business.
+
+Suite 11 tests the full reservation CTA lifecycle: visibility in the header, correct booking text, valid OpenTable restaurant ID in the URL, `target="_blank"` for new tab behavior, live reachability via `cy.request()`, and visibility on mobile (where the majority of restaurant searches happen).
+
+---
+
+## 🌐 Cross-Browser & Cross-OS Matrix
 
 Tests run on **7 combinations** of OS and browser on every push:
 
-|OS|Chrome|Firefox|Edge|
+| OS | Chrome | Firefox | Edge |
 |-|-|-|-|
-|Ubuntu (Linux)|✅|✅|—|
-|macOS|✅|✅|—|
-|Windows|✅|✅|✅|
+| Ubuntu (Linux) | ✅ | ✅ | — |
+| macOS | ✅ | ✅ | — |
+| Windows | ✅ | ✅ | ✅ |
 
 Edge is Windows-only as it is not available on Linux/macOS GitHub runners.
 
-\---
+---
 
 ## 🤖 GitHub Actions CI/CD
 
-The workflow at `.github/workflows/cypress.yml` triggers on every push and pull request to `main`.
+The workflow at `.github/workflows/test.cy.yml` triggers on every push and pull request to `main`.
 
-**Pipeline steps (per matrix job):**
+### Pipeline Jobs
 
-1. Checks out repo on a fresh VM (Ubuntu / macOS / Windows)
-2. Installs Node.js 20 with npm cache for speed
-3. Runs `npm ci` for clean, reproducible installs
+**Job 1 — Security Audit** (runs first)
+- Runs `npm audit --audit-level=high`
+- Fails the entire pipeline if any high or critical dependency vulnerabilities are found
+- E2E tests don't run until the audit passes
+
+**Job 2 — Cypress E2E Matrix** (runs after audit, across all 7 OS/browser combos)
+1. Checks out repo on a fresh VM
+2. Installs Node.js 20 with npm cache
+3. Runs `npm ci` for reproducible installs
 4. Boots the local server via `npm start`
 5. Waits for `localhost:3000` to be ready
-6. Runs all 31 Cypress tests in the specified browser
-7. Uploads screenshots as artifacts on failure (named by OS + browser)
+6. Runs all 50 Cypress tests
+7. Uploads screenshots on failure (named by OS + browser, retained 7 days)
 
-**Every commit shows a pass/fail status** per OS/browser combination directly in GitHub.
+---
 
-\---
+## 🐛 Bugs Found
+
+Three real bugs were discovered and documented during this QA engagement. See [BUGS.md](./BUGS.md) for full reports.
+
+| ID | Title | Severity | Status |
+|-|-|-|-|
+| BUG-001 | `target="_blank"` links missing `rel="noopener noreferrer"` | Medium | Open |
+| BUG-002 | Reservation URL contains stale `datetime` from 2023 | Low | Open |
+| BUG-003 | Missing `<meta name="description">` tag | Low | Open |
+
+---
+
+## 🗺️ Test Plan
+
+See [TEST-PLAN.md](./TEST-PLAN.md) for the full test plan including:
+- Scope & objectives
+- Risk assessment table (what breaks = what priority)
+- Why E2E only (no unit tests) for this project
+- Social link testing strategy and rationale
+- Entry/exit criteria
+- Known limitations and accepted risks
+- Future test ideas
+
+---
 
 ## 🛠️ Technical Challenges Solved
 
-Real problems encountered and fixed during this project:
-
 **1. Page load timeout on saved Squarespace HTML**
-Squarespace pages load dozens of scripts from external CDNs. GitHub's CI runner has no access to those, causing 60s timeouts. Fixed by adding `blockHosts` in `cypress.config.js` to immediately reject external CDN requests rather than waiting for them.
+CDN requests causing 60s timeouts in CI. Fixed with `blockHosts` to immediately reject external CDN requests.
 
-**2. jQuery `$ is not defined` crash**
-Blocking the CDN also blocked jQuery, causing the page's own JavaScript to throw uncaught errors and fail every test. Fixed by adding `Cypress.on('uncaught:exception', () => false)` in `e2e.js` — the standard approach for testing third-party sites where you don't control the JS.
+**2. Unpredictable uncaught JS exceptions**
+Blocking CDNs caused a flood of `ReferenceError` exceptions (jQuery, YUI, Squarespace runtime, cross-origin `Script error.`). For third-party HTML we don't control, the correct approach is to suppress all uncaught exceptions globally and rely on explicit assertions.
 
 **3. Text selector mismatch**
-`cy.contains()` only matches visible DOM text, not `alt` attributes. An image had `alt="Sal Rosa Cafe + Scoops"` but the visible paragraph text was different. Fixed by targeting the actual rendered paragraph content.
+`cy.contains()` matches visible DOM text only, not `alt` attributes. Fixed by targeting rendered paragraph content.
 
 **4. Multiple element matches**
-Marriott and OpenTable links appear 3 times in the HTML (header, mobile nav, footer). Fixed with `.first()` to avoid Cypress throwing on multiple matches.
+Marriott and OpenTable links appear 3 times (header, mobile nav, footer). Fixed with `.first()`.
 
 **5. Social media links not testable via cy.request()**
-Instagram, Facebook, and Twitter/X return `403` or redirect to login pages for all automated/non-browser requests. Attempting `cy.request()` on these URLs will always fail in CI regardless of whether the link is valid. Fixed by using a custom `shouldHaveValidUrl` command that reads the `href` from the DOM and validates it is a well-formed `https://` URL pointing to the correct domain — the meaningful, reliable check available for third-party social links.
+Instagram/Facebook/Twitter/X return 403 for all automated requests. Fixed with custom `shouldHaveValidUrl` DOM validation command.
 
-**6. opentable.com blocked by blockHosts**
-`opentable.com` was in the `blockHosts` list to prevent the page from loading the OpenTable widget. This also inadvertently blocked `cy.request()` from reaching OpenTable for availability testing. Fixed by removing `opentable.com` from `blockHosts` — the widget iframe failing to load doesn't affect any test assertions.
+**6. opentable.com in blockHosts blocking cy.request()**
+Removed from `blockHosts` so availability tests can reach it. Widget iframe failure doesn't affect assertions.
 
-**7. Missing `cypress:open` script**
-The README documented `npm run cypress:open` but the script was never defined in `package.json`, making the interactive test runner inaccessible. Fixed by adding `"cypress:open": "cypress open"` to the scripts.
+**7. Missing cypress:open script**
+`"cypress:open": "cypress open"` was documented but not defined in `package.json`.
+
+**8. Orphaned test1.cy.js outside e2e/ folder**
+Spec outside the `specPattern` glob was never running. Removed.
 
 ---
 
 ## 💡 Key Cypress Concepts Demonstrated
 
-* `blockHosts` to handle third-party CDN dependencies in CI
-* `uncaught:exception` handler for legacy/third-party JavaScript
-* `beforeEach` hooks for consistent test setup
-* Attribute selectors: `a[href*="..."]`, `a[href^="tel:"]`
-* `.first()` to handle duplicate elements
-* `should('have.attr', 'target', '_blank')` for link safety checks
-* `cy.request()` with `failOnStatusCode: false` for external link availability
+* `blockHosts` to isolate tests from third-party CDN traffic
+* `uncaught:exception` handler with documented reasoning
+* `beforeEach` for consistent, isolated test setup
+* `cy.viewport('iphone-14')` for mobile testing
+* `cy.request()` with `failOnStatusCode: false` for link availability
 * Custom chainable command (`shouldHaveValidUrl`) for DOM-based URL validation
-* Strategy matrix in GitHub Actions for cross-browser/OS coverage
-* `fail-fast: false` to get full results across all matrix jobs
+* Attribute selectors: `a[href*="..."]`, `a[href^="http://"]`, `a[href^="tel:"]`
+* `.first()` for duplicate element handling
+* `.invoke('text')` and `.invoke('attr', 'href')` for value extraction
+* Business-priority test planning (P1/P2/P3)
+* Accessibility assertions: `alt`, landmarks, link text
+* Security assertions: https-only, no `javascript:` hrefs
+* `npm audit` as a CI quality gate
+* Cross-browser/OS strategy matrix with `fail-fast: false`
 
-\---
+---
 
 ## 📄 License
 
 MIT
-
