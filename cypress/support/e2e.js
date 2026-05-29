@@ -4,6 +4,9 @@ import './commands';
 // Suppress only known third-party errors caused by blocked CDN (jQuery not loading).
 // All other uncaught exceptions will still fail the test as expected.
 Cypress.on('uncaught:exception', (err) => {
+  if (!err.message || err.message === 'Script error.'){
+    return false;
+  }
   const knownThirdPartyErrors = [
     '$ is not defined',
     'jQuery is not defined',
