@@ -8,12 +8,15 @@ Cypress.on('uncaught:exception', (err) => {
     '$ is not defined',
     'jQuery is not defined',
     'Cannot read properties of undefined', // Squarespace widget init failures
+    'Y is not defined',
+    'Squarespace is not defined',
+    'Static is not defined',
   ];
   if (knownThirdPartyErrors.some((msg) => err.message.includes(msg))) {
     return false; // suppress — not our code
   }
   return true; // re-throw — fail the test
-});-e 
+});
 
   it('Instagram link opens in a new tab with noopener', () => {
     // target="_blank" is on a separate line in the HTML but Cypress reads the DOM, not raw HTML
