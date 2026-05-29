@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "npx serve src -p 3000",
-    "test": "cypress run"
+    "test": "cypress run",
+    "cypress:open": "cypress open"
   },
   "repository": {
     "type": "git",
