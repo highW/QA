@@ -2,9 +2,9 @@
 
 End-to-end test suite for the [Sal Rosa Tampa](https://www.salrosatampa.com) restaurant website, built as a QA portfolio project. Tests run automatically on every push via GitHub Actions across multiple browsers and operating systems.
 
-!\[Tests](https://img.shields.io/badge/tests-25%20passing-brightgreen)
-!\[Cypress](https://img.shields.io/badge/cypress-v15-blue)
-!\[CI](https://img.shields.io/badge/CI-GitHub%20Actions-black)
+![Tests](https://img.shields.io/badge/tests-25%20passing-brightgreen)
+![Cypress](https://img.shields.io/badge/cypress-v15-blue)
+![CI](https://img.shields.io/badge/CI-GitHub%20Actions-black)
 
 \---
 
