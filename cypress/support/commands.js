@@ -12,6 +12,6 @@ Cypress.Commands.add('shouldHaveValidUrl', { prevSubject: 'element'}, (subject, 
   .then((href) => {
     expect(href, 'href should exist').to.exist;
     expect(href, 'href should use https').to.match(/^https:\/\//);
-    expect(href, 'href should point to ${expectedDomain}'.to.include(expectedDomain));
+    expect(href, `href should point to ${expectedDomain}`).to.include(expectedDomain);
   });
 });
